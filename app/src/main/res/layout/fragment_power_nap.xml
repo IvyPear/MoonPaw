@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0f172a">
+
+    <View
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:background="@drawable/gradient_primary"
+        android:alpha="0.15"
+        android:translationX="-80dp"
+        android:translationY="-50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:background="@drawable/gradient_secondary"
+        android:alpha="0.1"
+        android:translationX="80dp"
+        android:translationY="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="48dp"
+        android:paddingBottom="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/badge_surface"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#ffffff" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Ngủ bù"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <View android:layout_width="40dp" android:layout_height="40dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <View
+                android:id="@+id/view_breathing_glow"
+                android:layout_width="220dp"
+                android:layout_height="220dp"
+                android:layout_gravity="center"
+                android:background="@drawable/circle_primary_blur"
+                android:alpha="0.3" />
+
+            <LinearLayout
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center"
+                android:background="@drawable/circle_glass"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/img_cat_icon"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/ic_cruelty_free"
+                    app:tint="#e0e7ff" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="zZ"
+                    android:textColor="#a855f7"
+                    android:textStyle="bold"
+                    android:translationX="30dp"
+                    android:translationY="-60dp"
+                    android:textSize="20sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:translationY="90dp"
+                android:background="@drawable/pill_dark"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp">
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/circle_green"
+                    android:layout_marginEnd="6dp"/>
+                <TextView
+                    android:id="@+id/tv_status_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thư giãn"
+                    android:textColor="#ffffff"
+                    android:textSize="12sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingBottom="40dp">
+
+            <LinearLayout
+                android:id="@+id/container_setup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_marginBottom="30dp">
+
+                    <ImageButton
+                        android:id="@+id/btn_minus"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/badge_surface"
+                        android:src="@drawable/ic_remove"
+                        app:tint="#ffffff" />
+
+                    <LinearLayout
+                        android:layout_width="140dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/tv_minutes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="25"
+                            android:textColor="#ffffff"
+                            android:textSize="64sp"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="PHÚT"
+                            android:textColor="#64748b"
+                            android:textSize="12sp"
+                            android:letterSpacing="0.1"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+
+                    <ImageButton
+                        android:id="@+id/btn_plus"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/badge_surface"
+                        android:src="@drawable/ic_add"
+                        app:tint="#ffffff" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_15"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"
+                        android:text="15p"
+                        android:textSize="12sp"
+                        android:textColor="#ffffff"
+                        android:insetTop="0dp" android:insetBottom="0dp" android:padding="0dp"
+                        app:backgroundTint="#1AFFFFFF" app:cornerRadius="12dp"
+                        app:strokeWidth="1dp" app:strokeColor="#1AFFFFFF"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_25"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"
+                        android:layout_marginHorizontal="12dp"
+                        android:text="25p"
+                        android:textSize="12sp"
+                        android:textColor="#ffffff"
+                        android:textStyle="bold"
+                        android:insetTop="0dp" android:insetBottom="0dp" android:padding="0dp"
+                        app:backgroundTint="#6366f1" app:cornerRadius="12dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_30"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"
+                        android:text="30p"
+                        android:textSize="12sp"
+                        android:textColor="#ffffff"
+                        android:layout_marginEnd="12dp"
+                        android:insetTop="0dp" android:insetBottom="0dp" android:padding="0dp"
+                        app:backgroundTint="#1AFFFFFF" app:cornerRadius="12dp"
+                        app:strokeWidth="1dp" app:strokeColor="#1AFFFFFF"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_60"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"
+                        android:text="60p"
+                        android:textSize="12sp"
+                        android:textColor="#ffffff"
+                        android:insetTop="0dp" android:insetBottom="0dp" android:padding="0dp"
+                        app:backgroundTint="#1AFFFFFF" app:cornerRadius="12dp"
+                        app:strokeWidth="1dp" app:strokeColor="#1AFFFFFF"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/container_countdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone"
+                android:paddingHorizontal="40dp">
+
+                <TextView
+                    android:id="@+id/tv_countdown_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="25:00"
+                    android:textColor="#ffffff"
+                    android:textSize="48sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"/>
+
+                <ProgressBar
+                    android:id="@+id/progress_bar_nap"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="16dp"
+                    android:progressDrawable="@drawable/progress_nap"
+                    android:progress="100" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="32dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_start_nap"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="Bắt đầu ngủ bù"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                app:backgroundTint="#6366f1"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_bedtime"
+                app:iconGravity="textStart"
+                app:iconTint="#ffffff" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_already_wake"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:text="Tôi đã dậy rồi"
+                android:textColor="#9ca3af"
+                app:backgroundTint="@android:color/transparent"
+                app:rippleColor="#33ffffff"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

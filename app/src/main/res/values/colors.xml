@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="surface">#1e293b</color>
+    <color name="bottom_nav_text_color">#9ca3af</color> <!-- Màu text nav khi không chọn -->
+    <color name="bottom_nav_icon_tint">#6366f1</color> <!-- Màu icon khi chọn -->
+    <color name="purple_500">#6366f1</color>
+    <color name="blue_500">#3b82f6</color>
+    <color name="dark_gray">#1e293b</color>
+    <color name="light_gray">#9ca3af</color>
+    <color name="good_sleep">#4ade80</color> <!-- Xanh lá tốt -->
+    <color name="ok_sleep">#facc15</color> <!-- Vàng trung bình -->
+    <color name="bad_sleep">#94a3b8</color>
+    <color name="card_bg">#991e293b</color> <!-- rgba(30, 41, 59, 0.6) -->
+    <color name="card_stroke">#334155</color>
+</resources>

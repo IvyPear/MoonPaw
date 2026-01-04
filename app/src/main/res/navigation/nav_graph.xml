@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.moonpaw.fragment.HomeFragment"
+        android:label="Home" />
+
+    <fragment
+        android:id="@+id/powerNapFragment"
+        android:name="com.example.moonpaw.fragment.PowerNapFragment"
+        android:label="Ngủ bù" />
+
+    <fragment
+        android:id="@+id/breathingFragment"
+        android:name="com.example.moonpaw.fragment.BreathingFragment"
+        android:label="Tập thở" />
+
+    <!-- Action từ Home sang Ngủ bù -->
+    <action
+        android:id="@+id/action_home_to_power_nap"
+        app:destination="@id/powerNapFragment"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
+
+    <!-- Action từ Home sang Tập thở -->
+    <action
+        android:id="@+id/action_home_to_breathing"
+        app:destination="@id/breathingFragment"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
+</navigation>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="65dp"
+    android:clipChildren="false">
+
+    <TextView android:id="@+id/tv_tooltip"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal" android:layout_marginTop="-5dp"
+        android:background="@drawable/bg_tooltip_white" android:elevation="4dp"
+        android:paddingHorizontal="6dp" android:paddingVertical="2dp"
+        android:textColor="#0f172a" android:textSize="9sp" android:textStyle="bold"
+        android:visibility="gone" />
+
+    <View android:id="@+id/view_today_highlight"
+        android:layout_width="34dp" android:layout_height="34dp"
+        android:layout_gravity="center" android:background="@drawable/circle_white_10"
+        android:visibility="gone" />
+
+    <ImageView android:id="@+id/img_sleep_icon"
+        android:layout_width="26dp" android:layout_height="26dp"
+        android:layout_gravity="center" android:src="@drawable/ic_good_sleep" />
+
+</FrameLayout>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="#6366f1" /> <!-- Màu tím đậm khi nhấn -->
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <solid android:color="#818cf8" /> <!-- Màu tím chính (primary indigo) -->
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+</selector>
