@@ -2,17 +2,17 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#0f172a">
+    android:layout_height="match_parent">
 
-    <View
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:background="@drawable/gradient_primary"
-        android:alpha="0.1"
-        android:translationX="-100dp"
+    <!-- Galaxy Background -->
+    <com.example.moonpaw.view.GalaxyBackgroundView
+        android:id="@+id/galaxy_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <LinearLayout
         android:id="@+id/top_bar"
@@ -29,9 +29,9 @@
             android:id="@+id/btn_back"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/badge_surface"
+            android:background="@drawable/card_lighter_rounded"
             android:src="@drawable/ic_arrow_back"
-            app:tint="#ffffff" />
+            app:tint="@color/text_primary" />
 
         <TextView
             android:layout_width="0dp"
@@ -39,22 +39,23 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="Lịch sử Ngủ"
-            android:textColor="#ffffff"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:fontFamily="sans-serif-bold"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp" />
 
         <ImageButton
             android:id="@+id/btn_export_pdf"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/badge_surface"
+            android:background="@drawable/card_lighter_rounded"
             android:src="@drawable/ic_download"
-            app:tint="#ffffff" />
+            app:tint="@color/text_primary" />
     </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:scrollbars="none"
         app:layout_constraintTop_toBottomOf="@id/top_bar"
         app:layout_constraintBottom_toBottomOf="parent">
 
@@ -81,7 +82,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tổng quan tháng"
-                        android:textColor="#9ca3af"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="#80ffffff"
                         android:textSize="13sp" />
 
                     <TextView
@@ -89,9 +91,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tháng 1"
-                        android:textColor="#ffffff"
-                        android:textSize="32sp"
-                        android:textStyle="bold" />
+                        android:fontFamily="sans-serif-black"
+                        android:textColor="@color/text_primary"
+                        android:textSize="32sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -102,18 +104,18 @@
                         android:id="@+id/btn_prev_month"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
-                        android:background="@drawable/badge_surface"
+                        android:background="@drawable/card_lighter_rounded"
                         android:src="@drawable/ic_chevron_left"
-                        app:tint="#ffffff" />
+                        app:tint="@color/text_primary" />
 
                     <ImageButton
                         android:id="@+id/btn_next_month"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_marginStart="8dp"
-                        android:background="@drawable/badge_surface"
+                        android:background="@drawable/card_lighter_rounded"
                         android:src="@drawable/ic_chevron_right"
-                        app:tint="#ffffff" />
+                        app:tint="@color/text_primary" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -121,10 +123,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                app:cardBackgroundColor="#1AFFFFFF"
+                app:cardBackgroundColor="#4D1e293b"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#1AFFFFFF"
+                app:strokeColor="#0Dffffff"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -137,13 +139,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:columnCount="7">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T2" android:textColor="#64748b" android:textSize="10sp" android:textStyle="bold" />
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T3" android:textColor="#64748b" android:textSize="10sp" android:textStyle="bold" />
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T4" android:textColor="#64748b" android:textSize="10sp" android:textStyle="bold" />
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T5" android:textColor="#64748b" android:textSize="10sp" android:textStyle="bold" />
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T6" android:textColor="#64748b" android:textSize="10sp" android:textStyle="bold" />
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T7" android:textColor="#64748b" android:textSize="10sp" android:textStyle="bold" />
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="CN" android:textColor="#64748b" android:textSize="10sp" android:textStyle="bold" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T2" android:textColor="#66ffffff" android:textSize="10sp" android:fontFamily="sans-serif-bold" android:textAllCaps="true" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T3" android:textColor="#66ffffff" android:textSize="10sp" android:fontFamily="sans-serif-bold" android:textAllCaps="true" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T4" android:textColor="#66ffffff" android:textSize="10sp" android:fontFamily="sans-serif-bold" android:textAllCaps="true" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T5" android:textColor="#66ffffff" android:textSize="10sp" android:fontFamily="sans-serif-bold" android:textAllCaps="true" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T6" android:textColor="#66ffffff" android:textSize="10sp" android:fontFamily="sans-serif-bold" android:textAllCaps="true" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="T7" android:textColor="#66ffffff" android:textSize="10sp" android:fontFamily="sans-serif-bold" android:textAllCaps="true" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:gravity="center" android:text="CN" android:textColor="#66ffffff" android:textSize="10sp" android:fontFamily="sans-serif-bold" android:textAllCaps="true" />
                     </GridLayout>
 
                     <GridLayout
@@ -159,87 +161,130 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
+                android:layout_marginBottom="12dp"
                 android:text="Tổng kết tháng"
-                android:textColor="#ffffff"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:fontFamily="sans-serif-bold"
+                android:textColor="#66ffffff"
+                android:textSize="10sp"
+                android:textAllCaps="true"
+                android:letterSpacing="0.05" />
 
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:columnCount="2">
 
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/bg_card_glass"
-                    android:padding="16dp"
-                    android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tổng giờ ngủ" android:textColor="#9ca3af" android:textSize="11sp" />
-                    <TextView android:id="@+id/tv_total_hours" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#ffffff" android:textSize="24sp" android:textStyle="bold" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/bg_card_glass"
-                    android:padding="16dp"
-                    android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trung bình" android:textColor="#9ca3af" android:textSize="11sp" />
-                    <TextView android:id="@+id/tv_avg_sleep" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0h 0p" android:textColor="#ffffff" android:textSize="20sp" android:textStyle="bold" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/bg_card_glass"
-                    android:padding="16dp"
-                    android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chất lượng" android:textColor="#9ca3af" android:textSize="11sp" android:layout_marginBottom="8dp"/>
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center">
-                        <TextView android:id="@+id/tv_good_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#4ade80" android:textStyle="bold" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/tv_ok_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#facc15" android:textStyle="bold" android:layout_marginEnd="8dp"/>
-                        <TextView android:id="@+id/tv_bad_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#94a3b8" android:textStyle="bold"/>
+                    android:layout_margin="6dp"
+                    app:cardBackgroundColor="#661e293b"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#0Dffffff"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tổng giờ ngủ" android:textColor="#80ffffff" android:fontFamily="sans-serif-medium" android:textSize="11sp" />
+                        <TextView android:id="@+id/tv_total_hours" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/text_primary" android:textSize="24sp" android:fontFamily="sans-serif-bold" />
                     </LinearLayout>
-                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/bg_card_glass"
-                    android:padding="16dp"
-                    android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chuỗi tốt nhất" android:textColor="#9ca3af" android:textSize="11sp" />
-                    <TextView android:id="@+id/tv_best_streak" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#ffffff" android:textSize="24sp" android:textStyle="bold" />
-                </LinearLayout>
+                    android:layout_margin="6dp"
+                    app:cardBackgroundColor="#661e293b"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#0Dffffff"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trung bình" android:textColor="#80ffffff" android:fontFamily="sans-serif-medium" android:textSize="11sp" />
+                        <TextView android:id="@+id/tv_avg_sleep" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0h 0p" android:textColor="@color/text_primary" android:textSize="20sp" android:fontFamily="sans-serif-bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    app:cardBackgroundColor="#661e293b"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#0Dffffff"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chất lượng" android:textColor="#80ffffff" android:fontFamily="sans-serif-medium" android:textSize="11sp" android:layout_marginBottom="8dp"/>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center">
+                            <TextView android:id="@+id/tv_good_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/status_ok" android:fontFamily="sans-serif-bold" android:layout_marginEnd="8dp"/>
+                            <TextView android:id="@+id/tv_ok_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/status_mild" android:fontFamily="sans-serif-bold" android:layout_marginEnd="8dp"/>
+                            <TextView android:id="@+id/tv_bad_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#80ffffff" android:fontFamily="sans-serif-bold"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    app:cardBackgroundColor="#661e293b"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#0Dffffff"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chuỗi tốt nhất" android:textColor="#80ffffff" android:fontFamily="sans-serif-medium" android:textSize="11sp" />
+                        <TextView android:id="@+id/tv_best_streak" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/text_primary" android:textSize="24sp" android:fontFamily="sans-serif-bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </GridLayout>
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_gradient_card"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-                <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_auto_awesome" app:tint="#ffffff" />
-                <TextView
-                    android:id="@+id/tv_cat_comment"
+                app:cardBackgroundColor="#4D1e293b"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#0Dffffff"
+                app:strokeWidth="1dp">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="Mèo đang xem dữ liệu..."
-                    android:textColor="#ffffff"
-                    android:textSize="12sp" />
-            </LinearLayout>
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_auto_awesome" app:tint="@color/secondary" />
+                    <TextView
+                        android:id="@+id/tv_cat_comment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Mèo đang xem dữ liệu..."
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

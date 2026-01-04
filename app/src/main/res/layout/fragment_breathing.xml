@@ -3,44 +3,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#0f1119">
+    android:layout_height="match_parent">
 
-    <View
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:background="@drawable/gradient_blue"
-        android:alpha="0.2"
+    <!-- Galaxy Background -->
+    <com.example.moonpaw.view.GalaxyBackgroundView
+        android:id="@+id/galaxy_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:translationX="-50dp"
-        android:translationY="-50dp" />
-
-    <View
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:background="@drawable/gradient_purple"
-        android:alpha="0.15"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:translationX="50dp"
-        android:translationY="50dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <LinearLayout
         android:id="@+id/top_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:padding="16dp"
+        android:padding="24dp"
+        android:paddingTop="48dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/btn_close"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@drawable/badge_surface"
+            android:background="@drawable/card_lighter_rounded"
             android:src="@drawable/ic_close"
-            app:tint="#ffffff" />
+            app:tint="@color/text_primary" />
 
         <TextView
             android:layout_width="0dp"
@@ -48,11 +38,13 @@
             android:layout_weight="1"
             android:text="THƯ GIÃN SÂU"
             android:gravity="center"
-            android:textColor="#ffffff"
-            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif-bold"
             android:letterSpacing="0.1" />
 
-
+        <View
+            android:layout_width="48dp"
+            android:layout_height="48dp" />
     </LinearLayout>
 
     <FrameLayout
@@ -68,8 +60,8 @@
             android:layout_width="320dp"
             android:layout_height="320dp"
             android:layout_gravity="center"
-            android:background="@drawable/circle_primary_blur"
-            android:alpha="0.1" />
+            android:background="@drawable/circle_status_ok"
+            android:alpha="0.15" />
 
         <View
             android:id="@+id/circle_middle_border"
@@ -86,7 +78,7 @@
             android:layout_gravity="center"
             app:cardCornerRadius="120dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="#232738">
+            app:cardBackgroundColor="#4D1e293b">
 
             <ImageView
                 android:id="@+id/img_cat_breath"
@@ -95,7 +87,7 @@
                 android:src="@drawable/ic_cat_breathing"
                 android:scaleType="centerCrop"
                 android:padding="40dp"
-                app:tint="#818cf8"/>
+                app:tint="@color/primary"/>
         </androidx.cardview.widget.CardView>
     </FrameLayout>
 
@@ -107,24 +99,26 @@
         app:layout_constraintTop_toBottomOf="@id/breathing_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:translationY="-60dp"> <TextView
-        android:id="@+id/tv_breath_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hít vào"
-        android:textColor="#ffffff"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        android:shadowColor="#80000000"
-        android:shadowDy="4"
-        android:shadowRadius="4"/>
+        android:translationY="-60dp">
+        <TextView
+            android:id="@+id/tv_breath_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hít vào"
+            android:textColor="@color/text_primary"
+            android:textSize="40sp"
+            android:fontFamily="sans-serif-black"
+            android:shadowColor="#80000000"
+            android:shadowDy="4"
+            android:shadowRadius="4"/>
 
         <TextView
             android:id="@+id/tv_breath_guide"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Giữ nhịp thở chậm..."
-            android:textColor="#c7d2fe"
+            android:textColor="#99ffffff"
+            android:fontFamily="sans-serif-medium"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -136,51 +130,60 @@
         android:padding="24dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/card_dark_blur"
-            android:padding="20dp">
-
+            app:cardBackgroundColor="#661e293b"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#0Dffffff"
+            app:strokeWidth="1dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:orientation="vertical"
+                android:padding="20dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_bedtime"
-                    app:tint="#818cf8"/>
-
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Thời gian còn lại"
-                    android:textColor="#9ca3af"
-                    android:layout_marginStart="12dp"/>
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
 
-                <TextView
-                    android:id="@+id/tv_timer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="03:00"
-                    android:textColor="#ffffff"
-                    android:textSize="20sp"
-                    android:textStyle="bold"/>
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_bedtime"
+                        app:tint="@color/primary"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Thời gian còn lại"
+                        android:textColor="#80ffffff"
+                        android:fontFamily="sans-serif-medium"
+                        android:layout_marginStart="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_timer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="03:00"
+                        android:textColor="@color/text_primary"
+                        android:textSize="20sp"
+                        android:fontFamily="sans-serif-bold"/>
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progress_breath"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:progressDrawable="@drawable/progress_gradient"
+                    android:progress="100"/>
             </LinearLayout>
-
-            <ProgressBar
-                android:id="@+id/progress_breath"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="6dp"
-                android:progressDrawable="@drawable/progress_gradient"
-                android:progress="100"/>
-        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -194,7 +197,7 @@
                 android:layout_height="56dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_replay"
-                app:tint="#64748b" />
+                app:tint="#66ffffff" />
 
             <ImageButton
                 android:id="@+id/btn_play_pause"
@@ -202,7 +205,7 @@
                 android:layout_height="80dp"
                 android:background="@drawable/circle_white"
                 android:src="@drawable/ic_pause"
-                app:tint="#0f172a"
+                app:tint="@color/background_dark"
                 android:layout_marginHorizontal="32dp"
                 android:scaleType="centerInside"
                 android:padding="20dp"/>
@@ -213,7 +216,7 @@
                 android:layout_height="56dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_graphic_eq"
-                app:tint="#64748b" />
+                app:tint="#66ffffff" />
         </LinearLayout>
     </LinearLayout>
 
