@@ -3,14 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0f172a">
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:background="@drawable/gradient_primary"
-        android:alpha="0.15"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:background="#0f172a"> <View
+    android:layout_width="match_parent"
+    android:layout_height="250dp"
+    android:background="@drawable/gradient_primary"
+    android:alpha="0.15"
+    app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_header"
@@ -175,7 +173,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cài đặt Giấc ngủ"
+                android:text="Cài đặt &amp; Tiện ích"
                 android:textColor="#ffffff"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -188,6 +186,74 @@
                 android:background="@drawable/bg_card_glass"
                 android:orientation="vertical"
                 android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="20dp">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Giao diện Sáng"
+                            android:textColor="#ffffff"
+                            android:textSize="15sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Chuyển sang nền sáng (Beta)"
+                            android:textColor="#64748b"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switch_theme"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:trackTint="#334155"
+                        app:thumbTint="#a855f7"/>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginBottom="20dp"/>
+
+                <LinearLayout
+                    android:id="@+id/btn_upload_music"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="20dp"
+                    android:clickable="true"
+                    android:foreground="?selectableItemBackground">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_download" app:tint="#10b981"/>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Thêm nhạc của tôi"
+                            android:textColor="#ffffff"
+                            android:textSize="15sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tải file MP3 từ điện thoại"
+                            android:textColor="#64748b"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_add" app:tint="#10b981"/>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginBottom="20dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -220,8 +286,6 @@
                         app:trackTint="#334155"
                         app:thumbTint="#818cf8"/>
                 </LinearLayout>
-
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginBottom="20dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
