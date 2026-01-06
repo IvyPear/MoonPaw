@@ -58,26 +58,51 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        // Khởi tạo SharedPreferences
         sleepPrefs = requireContext().getSharedPreferences("SleepPrefs", Context.MODE_PRIVATE);
         userPrefs = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+
         initViews(view);
-        loadData();
         setupEvents();
+
+        // Lưu ý: loadData() sẽ được gọi trong onResume() để luôn cập nhật mới nhất
     }
 
-    // --- QUAN TRỌNG: CẬP NHẬT TRẠNG THÁI NHẠC KHI QUAY LẠI MÀN HÌNH NÀY ---
+    // --- QUAN TRỌNG: CẬP NHẬT DỮ LIỆU MỖI KHI VÀO MÀN HÌNH NÀY ---
     @Override
     public void onResume() {
         super.onResume();
-        // Lấy tên bài hát đang phát thực tế (do MusicFragment ghi lại)
-        String playingSong = sleepPrefs.getString("current_playing_song", "");
+        loadData(); // Gọi hàm load lại toàn bộ dữ liệu (Streak, Nhạc, Giờ...)
+    }
 
-        if (!playingSong.isEmpty()) {
-            tvMusic.setText(playingSong);
-        } else {
-            // Nếu chưa phát thì hiện bài tải lên cuối cùng (hoặc mặc định)
-            tvMusic.setText(sleepPrefs.getString("last_song_display", "Chưa nghe nhạc"));
-        }
+    private void loadData() {
+        // 1. Tên người dùng
+        tvUsername.setText(userPrefs.getString("username", "Minh Anh"));
+
+        // 2. Avatar
+        File file = new File(requireContext().getFilesDir(), "profile_avatar.png");
+        if (file.exists()) imgAvatar.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
+
+        // 3. Giờ giấc
+        tvBedtime.setText(sleepPrefs.getString("bedtime", "22:00"));
+        tvWakeup.setText(sleepPrefs.getString("wakeup", "06:00"));
+
+        // 4. Cài đặt Switch
+        isAuto8h = userPrefs.getBoolean("auto_8h", true);
+        switchAuto8h.setChecked(isAuto8h);
+        switchNotification.setChecked(userPrefs.getBoolean("notifications_enabled", true));
+
+        // --- 5. SỬA LỖI STREAK Ở ĐÂY ---
+        // Dùng key "streak_count" cho khớp với bên HomeFragment
+        int streak = sleepPrefs.getInt("streak_count", 0);
+        tvStreak.setText(streak + " ngày");
+
+        // 6. Trạng thái nhạc
+        String playing = sleepPrefs.getString("current_playing_song", "");
+        if(!playing.isEmpty()) tvMusic.setText(playing);
+        else tvMusic.setText(sleepPrefs.getString("last_song_display", "Chưa nghe nhạc"));
+
+        updateDurationHint();
     }
 
     private void initViews(View v) {
@@ -88,8 +113,10 @@ public class ProfileFragment extends Fragment {
         tvBedtime = v.findViewById(R.id.tv_bedtime);
         tvWakeup = v.findViewById(R.id.tv_wakeup);
         tvDurationHint = v.findViewById(R.id.tv_sleep_duration_hint);
+
         cardMusicStatus = v.findViewById(R.id.card_music_status);
         btnUploadMusic = v.findViewById(R.id.btn_upload_music);
+
         switchTheme = v.findViewById(R.id.switch_theme);
         switchAuto8h = v.findViewById(R.id.switch_auto_8h);
         switchNotification = v.findViewById(R.id.switch_notification);
@@ -99,9 +126,9 @@ public class ProfileFragment extends Fragment {
         getView().findViewById(R.id.btn_edit_name).setOnClickListener(v -> showEditNameDialog());
         imgAvatar.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
 
+        // Chuyển sang Music và phát nhạc
         cardMusicStatus.setOnClickListener(v -> {
             MusicFragment musicFragment = new MusicFragment();
-            // Lấy tên file gốc để yêu cầu phát (chứ không lấy tên hiển thị)
             String songToPlay = sleepPrefs.getString("last_song_filename", "");
 
             if (!songToPlay.isEmpty()) {
@@ -121,33 +148,33 @@ public class ProfileFragment extends Fragment {
             pickAudioLauncher.launch("audio/*");
         });
 
-        switchTheme.setOnCheckedChangeListener((v, c) -> { if(c) { Toast.makeText(getContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show(); v.postDelayed(() -> v.setChecked(false), 500); }});
-        switchAuto8h.setOnCheckedChangeListener((v, c) -> { isAuto8h = c; userPrefs.edit().putBoolean("auto_8h", c).apply(); if (c) calculateWakeupFromBedtime(); });
-        switchNotification.setOnCheckedChangeListener((v, c) -> userPrefs.edit().putBoolean("notifications_enabled", c).apply());
+        // Switch Logic
+        switchTheme.setOnCheckedChangeListener((v, c) -> {
+            if(c) {
+                Toast.makeText(getContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
+                v.postDelayed(() -> v.setChecked(false), 500);
+            }
+        });
+
+        switchAuto8h.setOnCheckedChangeListener((v, c) -> {
+            isAuto8h = c;
+            userPrefs.edit().putBoolean("auto_8h", c).apply();
+            if (c) calculateWakeupFromBedtime();
+        });
+
+        switchNotification.setOnCheckedChangeListener((v, c) ->
+                userPrefs.edit().putBoolean("notifications_enabled", c).apply()
+        );
+
+        // Time Picker Logic
         getView().findViewById(R.id.btn_pick_bedtime).setOnClickListener(v -> showTimePicker(true));
-        getView().findViewById(R.id.btn_pick_wakeup).setOnClickListener(v -> { if (isAuto8h) Toast.makeText(getContext(), "Tắt tự động để chỉnh!", Toast.LENGTH_SHORT).show(); else showTimePicker(false); });
+        getView().findViewById(R.id.btn_pick_wakeup).setOnClickListener(v -> {
+            if (isAuto8h) Toast.makeText(getContext(), "Tắt tự động để chỉnh!", Toast.LENGTH_SHORT).show();
+            else showTimePicker(false);
+        });
     }
 
-    private void loadData() {
-        tvUsername.setText(userPrefs.getString("username", "Minh Anh"));
-        File file = new File(requireContext().getFilesDir(), "profile_avatar.png");
-        if (file.exists()) imgAvatar.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
-
-        tvBedtime.setText(sleepPrefs.getString("bedtime", "22:00"));
-        tvWakeup.setText(sleepPrefs.getString("wakeup", "06:00"));
-        isAuto8h = userPrefs.getBoolean("auto_8h", true);
-        switchAuto8h.setChecked(isAuto8h);
-
-        tvStreak.setText(sleepPrefs.getInt("current_streak", 0) + " ngày");
-
-        // Mặc định load data sẽ hiển thị bài đang phát (nếu có)
-        String playing = sleepPrefs.getString("current_playing_song", "");
-        if(!playing.isEmpty()) tvMusic.setText(playing);
-        else tvMusic.setText(sleepPrefs.getString("last_song_display", "Chưa nghe nhạc"));
-
-        updateDurationHint();
-    }
-
+    // --- LOGIC FILE & TIỆN ÍCH ---
     private void saveAudioToInternalStorage(Uri uri) {
         try {
             String uniqueName = "song_" + System.currentTimeMillis() + ".mp3";
@@ -197,8 +224,31 @@ public class ProfileFragment extends Fragment {
 
     private void saveImageToInternalStorage(Uri uri) { try { InputStream is = requireContext().getContentResolver().openInputStream(uri); Bitmap bitmap = BitmapFactory.decodeStream(is); imgAvatar.setImageBitmap(bitmap); File file = new File(requireContext().getFilesDir(), "profile_avatar.png"); FileOutputStream fos = new FileOutputStream(file); bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos); fos.close(); is.close(); } catch (Exception e) {} }
     private void showEditNameDialog() { AlertDialog.Builder builder = new AlertDialog.Builder(getContext()); final EditText input = new EditText(getContext()); input.setText(tvUsername.getText()); builder.setView(input).setPositiveButton("Lưu", (d, w) -> { tvUsername.setText(input.getText()); userPrefs.edit().putString("username", input.getText().toString()).apply(); }).show(); }
-    private void showTimePicker(boolean isBedtime) { String[] p = (isBedtime ? tvBedtime : tvWakeup).getText().toString().split(":"); new TimePickerDialog(getContext(), (v, h, m) -> { String t = String.format(Locale.getDefault(), "%02d:%02d", h, m); if(isBedtime) { tvBedtime.setText(t); sleepPrefs.edit().putString("bedtime", t).apply(); if(isAuto8h) calculateWakeupFromBedtime(); else updateDurationHint(); } else { tvWakeup.setText(t); sleepPrefs.edit().putString("wakeup", t).apply(); updateDurationHint(); } }, Integer.parseInt(p[0]), Integer.parseInt(p[1]), true).show(); }
-    private void calculateWakeupFromBedtime() { String[] p = tvBedtime.getText().toString().split(":"); tvWakeup.setText(String.format(Locale.getDefault(), "%02d:%02d", (Integer.parseInt(p[0]) + 8) % 24, Integer.parseInt(p[1]))); sleepPrefs.edit().putString("wakeup", tvWakeup.getText().toString()).apply(); updateDurationHint(); }
+
+    private void showTimePicker(boolean isBedtime) {
+        String[] p = (isBedtime ? tvBedtime : tvWakeup).getText().toString().split(":");
+        new TimePickerDialog(getContext(), (v, h, m) -> {
+            String t = String.format(Locale.getDefault(), "%02d:%02d", h, m);
+            if(isBedtime) {
+                tvBedtime.setText(t);
+                sleepPrefs.edit().putString("bedtime", t).apply();
+                if(isAuto8h) calculateWakeupFromBedtime();
+                else updateDurationHint();
+            } else {
+                tvWakeup.setText(t);
+                sleepPrefs.edit().putString("wakeup", t).apply();
+                updateDurationHint();
+            }
+        }, Integer.parseInt(p[0]), Integer.parseInt(p[1]), true).show();
+    }
+
+    private void calculateWakeupFromBedtime() {
+        String[] p = tvBedtime.getText().toString().split(":");
+        tvWakeup.setText(String.format(Locale.getDefault(), "%02d:%02d", (Integer.parseInt(p[0]) + 8) % 24, Integer.parseInt(p[1])));
+        sleepPrefs.edit().putString("wakeup", tvWakeup.getText().toString()).apply();
+        updateDurationHint();
+    }
+
     private void updateDurationHint() {
         try {
             String[] b = tvBedtime.getText().toString().split(":");
