@@ -2,6 +2,7 @@ package com.example.moonpaw.fragment;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,8 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.airbnb.lottie.LottieAnimationView;
-import com.airbnb.lottie.LottieDrawable;
 import com.example.moonpaw.R;
 import com.example.moonpaw.utils.SleepAnalyzer;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -33,7 +33,11 @@ public class HomeFragment extends Fragment {
     private TextView tvDate, tvSleepStatus, tvSleepTip, tvBedtime, tvWakeup, tvStreak;
     private Button btnStartSleep, btnWakeUp;
     private MaterialCardView cardStartSleep, cardWakeUp;
-    private LottieAnimationView lottieCatAvatar;
+
+    // THAY ĐỔI: Sử dụng ImageView thay vì Lottie, thêm view để đổi màu nền
+    private ImageView imgCatAvatar;
+    private View viewCircleBg, viewCircleBorder;
+
     private SharedPreferences prefs;
 
     // Reset sau 60 giây (Test). Khi chạy thật sửa thành: 8 * 3600
@@ -52,7 +56,7 @@ public class HomeFragment extends Fragment {
         prefs = requireContext().getSharedPreferences("SleepPrefs", Context.MODE_PRIVATE);
 
         initViews(view);
-        setupLottieAnimation();
+        // setupLottieAnimation(); -> BỎ LOTTIE
         setupListeners(view);
 
         checkAndPerformReset();
@@ -69,22 +73,14 @@ public class HomeFragment extends Fragment {
                 bottomNav.getMenu().findItem(R.id.nav_home).setChecked(true);
             }
         }
-
-        // Resume animation khi quay lại fragment
-        if (lottieCatAvatar != null && !lottieCatAvatar.isAnimating()) {
-            lottieCatAvatar.resumeAnimation();
-        }
-
+        // Không cần resume animation nữa
         refreshUI();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        // Pause animation khi rời khỏi fragment để tiết kiệm tài nguyên
-        if (lottieCatAvatar != null && lottieCatAvatar.isAnimating()) {
-            lottieCatAvatar.pauseAnimation();
-        }
+        // Không cần pause animation nữa
     }
 
     private void initViews(View v) {
@@ -100,32 +96,13 @@ public class HomeFragment extends Fragment {
         cardStartSleep = v.findViewById(R.id.card_start_sleep);
         cardWakeUp = v.findViewById(R.id.card_wake_up);
 
-        // Khởi tạo LottieAnimationView
-        lottieCatAvatar = v.findViewById(R.id.lottie_cat_avatar);
+        // Ánh xạ ImageView và các view vòng tròn
+        imgCatAvatar = v.findViewById(R.id.img_cat_avatar);
+        viewCircleBg = v.findViewById(R.id.view_circle_bg);
+        viewCircleBorder = v.findViewById(R.id.view_circle_border);
     }
 
-    private void setupLottieAnimation() {
-        if (lottieCatAvatar != null) {
-            // Cấu hình animation
-            lottieCatAvatar.setSpeed(1.0f); // Tốc độ bình thường
-            lottieCatAvatar.setRepeatCount(LottieDrawable.INFINITE); // Lặp vô hạn
-            lottieCatAvatar.setRepeatMode(LottieDrawable.RESTART); // Restart mỗi lần lặp
-
-            // Bắt đầu animation
-            lottieCatAvatar.playAnimation();
-
-            // Xử lý sự kiện click (tùy chọn) - click để pause/resume
-            lottieCatAvatar.setOnClickListener(v -> {
-                if (lottieCatAvatar.isAnimating()) {
-                    lottieCatAvatar.pauseAnimation();
-                    Toast.makeText(getContext(), "Mèo đang ngủ 😴", Toast.LENGTH_SHORT).show();
-                } else {
-                    lottieCatAvatar.resumeAnimation();
-                    Toast.makeText(getContext(), "Mèo đã thức dậy 😺", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
+    // BỎ HÀM setupLottieAnimation()
 
     private void setupListeners(View v) {
         // 1. Nút Bắt đầu ngủ
@@ -137,9 +114,7 @@ public class HomeFragment extends Fragment {
                     .putBoolean("cycle_completed", false)
                     .apply();
 
-            // Animation hiệu ứng khi bắt đầu ngủ
-            animateCatToSleep();
-
+            // Logic hình ảnh sẽ được xử lý trong refreshUI -> updateCatState
             refreshUI();
             Toast.makeText(getContext(), "Chúc bạn ngủ ngon! 🌙", Toast.LENGTH_SHORT).show();
         });
@@ -159,19 +134,18 @@ public class HomeFragment extends Fragment {
                         .putFloat(dateKey, hours)
                         .putString("wakeup", SleepAnalyzer.formatTime(end))
                         .putLong("last_completion_time", end)
+                        // LƯU THÊM DỮ LIỆU ĐỂ HIỂN THỊ MÈO SAU KHI RESET APP
+                        .putFloat("last_duration", hours)
                         .putBoolean("cycle_completed", true)
                         .remove("sleep_start")
                         .apply();
-
-                // Animation hiệu ứng khi thức dậy
-                animateCatToWakeUp();
 
                 refreshUI();
                 Toast.makeText(getContext(), "Đã lưu " + String.format("%.1f", hours) + "h!", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // 3. Các nút điều hướng
+        // 3. Các nút điều hướng giữ nguyên
         try {
             View cardSchedule = v.findViewById(R.id.card_sleep_schedule);
             if (cardSchedule != null) cardSchedule.setOnClickListener(view -> navigateTo(new SleepSettingsFragment()));
@@ -186,43 +160,59 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    /**
-     * Animation hiệu ứng khi bắt đầu ngủ - làm chậm animation
-     */
-    private void animateCatToSleep() {
-        if (lottieCatAvatar != null) {
-            // Giảm tốc độ animation xuống 0.5x để tạo hiệu ứng buồn ngủ
-            lottieCatAvatar.setSpeed(0.5f);
+    // BỎ animateCatToSleep() và animateCatToWakeUp()
 
-            // Có thể thêm hiệu ứng alpha để mờ dần
-            lottieCatAvatar.animate()
-                    .alpha(0.7f)
-                    .setDuration(1000)
-                    .start();
+    /**
+     * HÀM MỚI: Cập nhật trạng thái Mèo và Màu sắc
+     */
+    private void updateCatState(boolean isSleeping, float hours) {
+        int imgRes;
+        int colorRes;
+        String statusText;
+
+        if (isSleeping) {
+            // Trạng thái 1: Đang ngủ (Xanh biển)
+            imgRes = R.drawable.cat_sleeping;
+            colorRes = Color.parseColor("#2196F3"); // Blue
+            statusText = "Đang ngủ";
+        } else {
+            // Đã dậy: Kiểm tra thời gian ngủ
+            if (hours >= 7) {
+                // Trạng thái 2: Ngủ đủ (Xanh lá)
+                imgRes = R.drawable.cat_happy;
+                colorRes = Color.parseColor("#10B981"); // Green
+                statusText = "Ngủ đủ";
+            } else if (hours >= 5) {
+                // Trạng thái 3: Hơi mệt (Vàng nhạt)
+                imgRes = R.drawable.cat_tired;
+                colorRes = Color.parseColor("#FBBF24"); // Yellow
+                statusText = "Hơi mệt";
+            } else {
+                // Trạng thái 4: Thiếu ngủ trầm trọng (Đỏ/Đỏ cam)
+                imgRes = R.drawable.cat_exhausted;
+                colorRes = Color.parseColor("#EF4444"); // Red
+                statusText = "Thiếu ngủ";
+            }
         }
-    }
 
-    /**
-     * Animation hiệu ứng khi thức dậy - làm nhanh animation
-     */
-    private void animateCatToWakeUp() {
-        if (lottieCatAvatar != null) {
-            // Tăng tốc độ animation lên 1.5x để tạo hiệu ứng năng động
-            lottieCatAvatar.setSpeed(1.5f);
+        // Cập nhật hình ảnh
+        if (imgCatAvatar != null) {
+            imgCatAvatar.setImageResource(imgRes);
+        }
 
-            // Phục hồi alpha về bình thường
-            lottieCatAvatar.animate()
-                    .alpha(1.0f)
-                    .setDuration(500)
-                    .withEndAction(() -> {
-                        // Sau 2 giây, trả về tốc độ bình thường
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                            if (lottieCatAvatar != null) {
-                                lottieCatAvatar.setSpeed(1.0f);
-                            }
-                        }, 2000);
-                    })
-                    .start();
+        // Cập nhật màu sắc các vòng tròn
+        if (viewCircleBg != null) {
+            viewCircleBg.setBackgroundTintList(ColorStateList.valueOf(colorRes));
+        }
+        if (viewCircleBorder != null) {
+            // view_circle_border là drawable shape, dùng setTint để đổi màu viền/nền của shape đó
+            viewCircleBorder.getBackground().setTint(colorRes);
+        }
+
+        // Cập nhật Text trạng thái và màu Badge
+        if (tvSleepStatus != null) {
+            tvSleepStatus.setText(statusText);
+            tvSleepStatus.setBackgroundTintList(ColorStateList.valueOf(colorRes));
         }
     }
 
@@ -293,34 +283,28 @@ public class HomeFragment extends Fragment {
             updateButtonState(cardStartSleep, btnStartSleep, true);
             updateButtonState(cardWakeUp, btnWakeUp, true);
 
-            // Trả về tốc độ và alpha bình thường khi hoàn thành
-            if (lottieCatAvatar != null) {
-                lottieCatAvatar.setSpeed(1.0f);
-                lottieCatAvatar.setAlpha(1.0f);
-            }
+            // Lấy thời lượng ngủ vừa lưu để hiển thị mèo tương ứng
+            float lastDuration = prefs.getFloat("last_duration", 8.0f);
+            updateCatState(false, lastDuration); // false = đã dậy
 
-            tvSleepStatus.setText("✅ Đã ghi nhận");
             tvSleepTip.setText("Reset sau 1 phút...");
 
         } else if (isSleeping > 0) {
             updateButtonState(cardStartSleep, btnStartSleep, true);
             updateButtonState(cardWakeUp, btnWakeUp, false);
 
-            tvSleepStatus.setText("😴 Đang ngủ");
+            updateCatState(true, 0); // true = đang ngủ
+
             tvSleepTip.setText("Mèo Mun đang canh...");
 
         } else {
             updateButtonState(cardStartSleep, btnStartSleep, false);
             updateButtonState(cardWakeUp, btnWakeUp, true);
 
-            // Trả về trạng thái bình thường
-            if (lottieCatAvatar != null) {
-                lottieCatAvatar.setSpeed(1.0f);
-                lottieCatAvatar.setAlpha(1.0f);
-            }
-
+            // Trạng thái bình thường/dự kiến
             float predictedHours = SleepAnalyzer.calculateDurationFromString(bedTimeStr, wakeUpStr);
-            tvSleepStatus.setText(SleepAnalyzer.getSleepLabel(predictedHours));
+            updateCatState(false, predictedHours);
+
             tvSleepTip.setText("Dự kiến: " + String.format("%.1f", predictedHours) + "h");
         }
     }
@@ -342,11 +326,5 @@ public class HomeFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         refreshHandler.removeCallbacksAndMessages(null);
-
-        // Dừng animation khi destroy view để tránh memory leak
-        if (lottieCatAvatar != null) {
-            lottieCatAvatar.cancelAnimation();
-            lottieCatAvatar = null;
-        }
     }
 }
