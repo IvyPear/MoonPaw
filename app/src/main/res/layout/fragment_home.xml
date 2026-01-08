@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Galaxy Background với ngôi sao động -->
     <com.example.moonpaw.view.GalaxyBackgroundView
         android:id="@+id/galaxy_background"
         android:layout_width="0dp"
@@ -15,6 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Top Bar -->
     <LinearLayout
         android:id="@+id/top_bar"
         android:layout_width="0dp"
@@ -85,6 +87,7 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Main Content -->
     <ScrollView
         android:id="@+id/scroll_content"
         android:layout_width="0dp"
@@ -106,6 +109,7 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
+            <!-- Sleep Status Card with Dynamic Border -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -121,14 +125,16 @@
                     android:clipChildren="false"
                     android:clipToPadding="false">
 
+                    <!-- Circle Glow (outer) - THÊM ID -->
                     <View
-                        android:id="@+id/view_circle_bg"
+                        android:id="@+id/view_circle_glow"
                         android:layout_width="256dp"
                         android:layout_height="256dp"
                         android:layout_gravity="center"
                         android:alpha="0.2"
                         android:background="@drawable/circle_status_ok" />
 
+                    <!-- Circle Border - THÊM ID -->
                     <FrameLayout
                         android:id="@+id/view_circle_border"
                         android:layout_width="240dp"
@@ -142,13 +148,13 @@
                             android:alpha="0.2"
                             android:background="@color/surface" />
 
+                        <!-- Cat Avatar Image -->
                         <ImageView
                             android:id="@+id/img_cat_avatar"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:padding="40dp"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/cat_happy" />
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/cat_awake" />
 
                     </FrameLayout>
 
@@ -162,7 +168,7 @@
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="6dp"
                         android:fontFamily="sans-serif-bold"
-                        android:text="Tốt"
+                        android:text="✓ Tốt"
                         android:textColor="@color/background_dark"
                         android:textSize="14sp" />
                 </FrameLayout>
@@ -179,9 +185,9 @@
                     android:fontFamily="sans-serif-medium"
                     android:textSize="18sp" />
 
-
             </LinearLayout>
 
+            <!-- Action Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -262,6 +268,7 @@
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
+            <!-- Lịch ngủ -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -378,6 +385,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Đề xuất cho bạn -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
