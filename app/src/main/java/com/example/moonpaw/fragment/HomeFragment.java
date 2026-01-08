@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,14 +35,12 @@ public class HomeFragment extends Fragment {
     private Button btnStartSleep, btnWakeUp;
     private MaterialCardView cardStartSleep, cardWakeUp;
 
-    // THAY ĐỔI: Sử dụng ImageView thay vì Lottie, thêm view để đổi màu nền
     private ImageView imgCatAvatar;
     private View viewCircleBg, viewCircleBorder;
 
     private SharedPreferences prefs;
 
-    // Reset sau 60 giây (Test). Khi chạy thật sửa thành: 8 * 3600
-    private final long TIME_TO_RESET_SECONDS = 60;
+    private final long TIME_TO_RESET_SECONDS = 60; // Test mode
     private Handler refreshHandler = new Handler(Looper.getMainLooper());
 
     @Nullable
@@ -56,7 +55,6 @@ public class HomeFragment extends Fragment {
         prefs = requireContext().getSharedPreferences("SleepPrefs", Context.MODE_PRIVATE);
 
         initViews(view);
-        // setupLottieAnimation(); -> BỎ LOTTIE
         setupListeners(view);
 
         checkAndPerformReset();
@@ -73,14 +71,7 @@ public class HomeFragment extends Fragment {
                 bottomNav.getMenu().findItem(R.id.nav_home).setChecked(true);
             }
         }
-        // Không cần resume animation nữa
         refreshUI();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        // Không cần pause animation nữa
     }
 
     private void initViews(View v) {
@@ -96,16 +87,12 @@ public class HomeFragment extends Fragment {
         cardStartSleep = v.findViewById(R.id.card_start_sleep);
         cardWakeUp = v.findViewById(R.id.card_wake_up);
 
-        // Ánh xạ ImageView và các view vòng tròn
         imgCatAvatar = v.findViewById(R.id.img_cat_avatar);
         viewCircleBg = v.findViewById(R.id.view_circle_bg);
         viewCircleBorder = v.findViewById(R.id.view_circle_border);
     }
 
-    // BỎ HÀM setupLottieAnimation()
-
     private void setupListeners(View v) {
-        // 1. Nút Bắt đầu ngủ
         btnStartSleep.setOnClickListener(view -> {
             long now = System.currentTimeMillis();
             prefs.edit()
@@ -113,13 +100,10 @@ public class HomeFragment extends Fragment {
                     .putString("bedtime", SleepAnalyzer.formatTime(now))
                     .putBoolean("cycle_completed", false)
                     .apply();
-
-            // Logic hình ảnh sẽ được xử lý trong refreshUI -> updateCatState
             refreshUI();
             Toast.makeText(getContext(), "Chúc bạn ngủ ngon! 🌙", Toast.LENGTH_SHORT).show();
         });
 
-        // 2. Nút Tôi đã dậy
         btnWakeUp.setOnClickListener(view -> {
             long end = System.currentTimeMillis();
             long start = prefs.getLong("sleep_start", 0);
@@ -134,7 +118,6 @@ public class HomeFragment extends Fragment {
                         .putFloat(dateKey, hours)
                         .putString("wakeup", SleepAnalyzer.formatTime(end))
                         .putLong("last_completion_time", end)
-                        // LƯU THÊM DỮ LIỆU ĐỂ HIỂN THỊ MÈO SAU KHI RESET APP
                         .putFloat("last_duration", hours)
                         .putBoolean("cycle_completed", true)
                         .remove("sleep_start")
@@ -145,75 +128,121 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // 3. Các nút điều hướng giữ nguyên
+        // Navigation logic...
         try {
             View cardSchedule = v.findViewById(R.id.card_sleep_schedule);
             if (cardSchedule != null) cardSchedule.setOnClickListener(view -> navigateTo(new SleepSettingsFragment()));
-
             View cardNap = v.findViewById(R.id.card_sleep_bu);
             if (cardNap != null) cardNap.setOnClickListener(view -> navigateTo(new PowerNapFragment()));
-
             View cardBreath = v.findViewById(R.id.card_breathing);
             if (cardBreath != null) cardBreath.setOnClickListener(view -> navigateTo(new BreathingFragment()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // BỎ animateCatToSleep() và animateCatToWakeUp()
-
     /**
-     * HÀM MỚI: Cập nhật trạng thái Mèo và Màu sắc
+     * HÀM MỚI: Cập nhật UI theo Bảng đánh giá khoa học
      */
     private void updateCatState(boolean isSleeping, float hours) {
+        // Lấy giờ đi ngủ thực tế để phân tích nhịp sinh học
+        String actualBedTime = prefs.getString("bedtime", "23:00");
+
+        // 1. Xác định UI State (Good/OK/Bad) dựa trên Duration + Bedtime
+        SleepAnalyzer.SleepState state = SleepAnalyzer.evaluateSleepState(hours, isSleeping, actualBedTime);
+
+        // 2. Xác định Nguyên nhân cụ thể để hiển thị Tip Text
+        SleepAnalyzer.SleepIssue issue = SleepAnalyzer.analyzeSleepIssue(hours, actualBedTime);
+
         int imgRes;
         int colorRes;
         String statusText;
+        String tipText;
 
-        if (isSleeping) {
-            // Trạng thái 1: Đang ngủ (Xanh biển)
-            imgRes = R.drawable.cat_sleeping;
-            colorRes = Color.parseColor("#2196F3"); // Blue
-            statusText = "Đang ngủ";
-        } else {
-            // Đã dậy: Kiểm tra thời gian ngủ
-            if (hours >= 7) {
-                // Trạng thái 2: Ngủ đủ (Xanh lá)
+        switch (state) {
+            case SLEEPING:
+                imgRes = R.drawable.cat_sleeping;
+                colorRes = SleepAnalyzer.COLOR_SLEEPING;
+                statusText = "Đang ngủ";
+                tipText = "Mèo đang canh cho bạn...";
+                break;
+
+            case GOOD:
+                // Thỏa mãn: 7.5-9h VÀ Ngủ sớm
                 imgRes = R.drawable.cat_happy;
-                colorRes = Color.parseColor("#10B981"); // Green
-                statusText = "Ngủ đủ";
-            } else if (hours >= 5) {
-                // Trạng thái 3: Hơi mệt (Vàng nhạt)
+                colorRes = SleepAnalyzer.COLOR_GOOD;
+                statusText = "Lý tưởng";
+                // Bảng 4: "Không vấn đề"
+                tipText = "Giữ thói quen ngủ đều đặn giúp bạn duy trì năng lượng.";
+                break;
+
+            case OK:
+                // Bao gồm: Thiếu nhẹ, Ngủ quá nhiều, Hoặc Ngủ đủ nhưng muộn
                 imgRes = R.drawable.cat_tired;
-                colorRes = Color.parseColor("#FBBF24"); // Yellow
-                statusText = "Hơi mệt";
-            } else {
-                // Trạng thái 4: Thiếu ngủ trầm trọng (Đỏ/Đỏ cam)
+                colorRes = SleepAnalyzer.COLOR_OK;
+                statusText = "Tạm ổn";
+
+                // Map câu thoại theo Bảng 4
+                if (issue == SleepAnalyzer.SleepIssue.LATE_SLEEP) {
+                    tipText = "Bạn nên đi ngủ sớm hơn để cải thiện nhịp sinh học.";
+                } else if (issue == SleepAnalyzer.SleepIssue.OVER_SLEEP) {
+                    tipText = "Ngủ quá nhiều có thể khiến bạn cảm thấy uể oải.";
+                } else if (issue == SleepAnalyzer.SleepIssue.MILD_SHORT) {
+                    tipText = "Bạn nên ngủ thêm để cơ thể phục hồi tốt hơn.";
+                } else {
+                    // Fallback
+                    tipText = "Cơ thể chưa hồi phục hoàn toàn.";
+                }
+                break;
+
+            case BAD:
+                // Bao gồm: Thiếu nhiều (<6.5h)
                 imgRes = R.drawable.cat_exhausted;
-                colorRes = Color.parseColor("#EF4444"); // Red
-                statusText = "Thiếu ngủ";
+                colorRes = SleepAnalyzer.COLOR_BAD;
+                statusText = "Cần chú ý"; // Hoặc "Thiếu ngủ"
+
+                if (issue == SleepAnalyzer.SleepIssue.SHORT_AND_LATE) {
+                    tipText = "Ngủ muộn và thiếu giờ có thể gây mệt mỏi kéo dài.";
+                } else {
+                    // Mặc định cho SHORT_SLEEP
+                    tipText = "Bạn nên ngủ thêm để cơ thể phục hồi tốt hơn.";
+                }
+                break;
+
+            default:
+                imgRes = R.drawable.cat_happy;
+                colorRes = Color.GRAY;
+                statusText = "--";
+                tipText = "";
+                break;
+        }
+
+        // Cập nhật UI (Animation mờ)
+        if (imgCatAvatar != null) {
+            Object tag = imgCatAvatar.getTag();
+            if (tag == null || !tag.equals(imgRes)) {
+                AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+                fadeOut.setDuration(200);
+                fadeOut.setFillAfter(true);
+                imgCatAvatar.startAnimation(fadeOut);
+
+                final int finalImgRes = imgRes;
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    imgCatAvatar.setImageResource(finalImgRes);
+                    imgCatAvatar.setTag(finalImgRes);
+                    AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+                    fadeIn.setDuration(200);
+                    fadeIn.setFillAfter(true);
+                    imgCatAvatar.startAnimation(fadeIn);
+                }, 200);
             }
         }
 
-        // Cập nhật hình ảnh
-        if (imgCatAvatar != null) {
-            imgCatAvatar.setImageResource(imgRes);
-        }
-
-        // Cập nhật màu sắc các vòng tròn
-        if (viewCircleBg != null) {
-            viewCircleBg.setBackgroundTintList(ColorStateList.valueOf(colorRes));
-        }
-        if (viewCircleBorder != null) {
-            // view_circle_border là drawable shape, dùng setTint để đổi màu viền/nền của shape đó
-            viewCircleBorder.getBackground().setTint(colorRes);
-        }
-
-        // Cập nhật Text trạng thái và màu Badge
+        if (viewCircleBg != null) viewCircleBg.setBackgroundTintList(ColorStateList.valueOf(colorRes));
+        if (viewCircleBorder != null) viewCircleBorder.getBackground().setTint(colorRes);
         if (tvSleepStatus != null) {
             tvSleepStatus.setText(statusText);
             tvSleepStatus.setBackgroundTintList(ColorStateList.valueOf(colorRes));
         }
+        if (tvSleepTip != null) tvSleepTip.setText(tipText);
     }
 
     private void updateStreakLogic(long currentTimeMs) {
@@ -223,18 +252,13 @@ public class HomeFragment extends Fragment {
         if (lastCompletion == 0) {
             currentStreak = 1;
         } else {
-            Calendar now = Calendar.getInstance();
-            now.setTimeInMillis(currentTimeMs);
-            Calendar last = Calendar.getInstance();
-            last.setTimeInMillis(lastCompletion);
+            Calendar now = Calendar.getInstance(); now.setTimeInMillis(currentTimeMs);
+            Calendar last = Calendar.getInstance(); last.setTimeInMillis(lastCompletion);
 
-            now.set(Calendar.HOUR_OF_DAY, 0);
-            now.set(Calendar.MINUTE, 0);
-            last.set(Calendar.HOUR_OF_DAY, 0);
-            last.set(Calendar.MINUTE, 0);
+            now.set(Calendar.HOUR_OF_DAY, 0); now.set(Calendar.MINUTE, 0);
+            last.set(Calendar.HOUR_OF_DAY, 0); last.set(Calendar.MINUTE, 0);
 
             long diffDays = (now.getTimeInMillis() - last.getTimeInMillis()) / (24 * 60 * 60 * 1000);
-
             if (diffDays == 1) currentStreak++;
             else if (diffDays > 1) currentStreak = 1;
         }
@@ -246,13 +270,8 @@ public class HomeFragment extends Fragment {
         if (lastComp == 0) return;
 
         if ((System.currentTimeMillis() - lastComp) / 1000 >= TIME_TO_RESET_SECONDS) {
-            prefs.edit()
-                    .putBoolean("cycle_completed", false)
-                    .remove("last_completion_time")
-                    .apply();
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(this::refreshUI);
-            }
+            prefs.edit().putBoolean("cycle_completed", false).remove("last_completion_time").apply();
+            if (getActivity() != null) getActivity().runOnUiThread(this::refreshUI);
         }
     }
 
@@ -267,8 +286,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void refreshUI() {
-        tvDate.setText(new SimpleDateFormat("EEEE, dd/MM", Locale.getDefault())
-                .format(Calendar.getInstance().getTime()));
+        tvDate.setText(new SimpleDateFormat("EEEE, dd/MM", Locale.getDefault()).format(Calendar.getInstance().getTime()));
         tvStreak.setText(String.valueOf(prefs.getInt("streak_count", 0)));
 
         String bedTimeStr = prefs.getString("bedtime", "23:00");
@@ -283,28 +301,26 @@ public class HomeFragment extends Fragment {
             updateButtonState(cardStartSleep, btnStartSleep, true);
             updateButtonState(cardWakeUp, btnWakeUp, true);
 
-            // Lấy thời lượng ngủ vừa lưu để hiển thị mèo tương ứng
             float lastDuration = prefs.getFloat("last_duration", 8.0f);
-            updateCatState(false, lastDuration); // false = đã dậy
-
-            tvSleepTip.setText("Reset sau 1 phút...");
+            updateCatState(false, lastDuration); // State: Completed (Show Report)
 
         } else if (isSleeping > 0) {
             updateButtonState(cardStartSleep, btnStartSleep, true);
             updateButtonState(cardWakeUp, btnWakeUp, false);
 
-            updateCatState(true, 0); // true = đang ngủ
-
-            tvSleepTip.setText("Mèo Mun đang canh...");
+            updateCatState(true, 0); // State: Sleeping
 
         } else {
             updateButtonState(cardStartSleep, btnStartSleep, false);
             updateButtonState(cardWakeUp, btnWakeUp, true);
 
-            // Trạng thái bình thường/dự kiến
+            // Chế độ dự đoán (Prediction) - Chỉ hiện thị giờ dự kiến, không đánh giá
             float predictedHours = SleepAnalyzer.calculateDurationFromString(bedTimeStr, wakeUpStr);
+
+            // Dùng logic cũ để set màu tạm thời hoặc set màu trung tính
             updateCatState(false, predictedHours);
 
+            // Override text riêng cho trạng thái dự kiến
             tvSleepTip.setText("Dự kiến: " + String.format("%.1f", predictedHours) + "h");
         }
     }

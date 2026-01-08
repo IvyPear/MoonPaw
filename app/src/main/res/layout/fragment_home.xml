@@ -162,7 +162,7 @@
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="6dp"
                         android:fontFamily="sans-serif-bold"
-                        android:text="✓ Tốt"
+                        android:text="Tốt"
                         android:textColor="@color/background_dark"
                         android:textSize="14sp" />
                 </FrameLayout>
@@ -179,13 +179,7 @@
                     android:fontFamily="sans-serif-medium"
                     android:textSize="18sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Sẵn sàng cho ngày mới năng động ☀️"
-                    android:textColor="#80ffffff"
-                    android:textSize="14sp" />
+
             </LinearLayout>
 
             <LinearLayout

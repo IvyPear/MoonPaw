@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Galaxy Background -->
     <com.example.moonpaw.view.GalaxyBackgroundView
         android:id="@+id/galaxy_background"
         android:layout_width="0dp"
@@ -133,7 +132,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
 
                     <GridLayout
                         android:layout_width="match_parent"
@@ -153,7 +154,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:columnCount="7"
-                        android:layout_marginTop="12dp" />
+                        android:layout_marginTop="12dp"
+                        android:useDefaultMargins="false"
+                        android:alignmentMode="alignBounds"
+                        android:rowOrderPreserved="false"
+                        android:verticalSpacing="12dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

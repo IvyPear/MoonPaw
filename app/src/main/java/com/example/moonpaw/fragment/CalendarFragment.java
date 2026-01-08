@@ -17,17 +17,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.moonpaw.R;
-import com.example.moonpaw.utils.PdfExporter; // Class xuất PDF
+import com.example.moonpaw.utils.PdfExporter;
 import com.example.moonpaw.utils.SleepAnalyzer;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class CalendarFragment extends Fragment {
 
     private GridLayout gridCalendar;
     private TextView tvMonth, tvTotalHours, tvAvgSleep, tvGoodCount, tvOkCount, tvBadCount, tvBestStreak, tvCatComment;
-    private ImageButton btnExportPdf; // Nút xuất PDF
+    private ImageButton btnExportPdf;
     private Calendar calendar;
     private SharedPreferences prefs;
 
@@ -41,8 +43,6 @@ public class CalendarFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         prefs = requireContext().getSharedPreferences("SleepPrefs", Context.MODE_PRIVATE);
-
-        // Lấy thời gian thực
         calendar = Calendar.getInstance();
 
         initViews(view);
@@ -69,7 +69,7 @@ public class CalendarFragment extends Fragment {
             updateUI();
         });
 
-        // 3. Nút Xuất PDF (Logic mới)
+        // 3. Nút Xuất PDF
         if (btnExportPdf != null) {
             btnExportPdf.setOnClickListener(v -> exportReportToPdf());
         }
@@ -85,42 +85,46 @@ public class CalendarFragment extends Fragment {
         tvBadCount = v.findViewById(R.id.tv_bad_count);
         tvBestStreak = v.findViewById(R.id.tv_best_streak);
         tvCatComment = v.findViewById(R.id.tv_cat_comment);
-
-        // Ánh xạ nút Export
         btnExportPdf = v.findViewById(R.id.btn_export_pdf);
     }
 
-    // Hàm xử lý logic Xuất PDF
+    // --- LOGIC XUẤT PDF (ĐÃ SỬA LỖI THIẾU THAM SỐ) ---
     private void exportReportToPdf() {
         Toast.makeText(getContext(), "Đang tạo báo cáo...", Toast.LENGTH_SHORT).show();
 
-        // Thu thập dữ liệu hiện tại đang hiển thị
         float total = 0;
         int good = 0, bad = 0;
         int days = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        // Tạo list chứa dữ liệu từng ngày để vẽ biểu đồ
+        List<Float> dailyData = new ArrayList<>();
 
         for (int d = 1; d <= days; d++) {
             Calendar temp = (Calendar) calendar.clone();
             temp.set(Calendar.DAY_OF_MONTH, d);
             String key = SleepAnalyzer.getDateKey(temp.getTimeInMillis());
             float h = prefs.getFloat(key, 0f);
+
+            dailyData.add(h); // Thêm vào list cho biểu đồ
+
             if (h > 0) {
                 total += h;
-                if (h >= 7) good++; else bad++;
+                // Đánh giá đơn giản cho PDF (Dùng hàm overload mặc định)
+                if (SleepAnalyzer.evaluateSleepState(h, false) == SleepAnalyzer.SleepState.GOOD) good++;
+                else bad++;
             }
         }
 
-        String currentComment = tvCatComment.getText().toString();
-
-        // Gọi Helper để tạo file
         try {
+            // Truyền đủ 7 tham số bao gồm dailyData
             PdfExporter.createReport(
                     requireContext(),
                     calendar,
                     total,
                     good,
                     bad,
-                    currentComment
+                    tvCatComment.getText().toString(),
+                    dailyData
             );
         } catch (Exception e) {
             Toast.makeText(getContext(), "Lỗi xuất PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -161,60 +165,88 @@ public class CalendarFragment extends Fragment {
         }
     }
 
+    // --- LOGIC TÍNH TOÁN & NHẬN XÉT CỦA MÈO ---
     private void calculateStats() {
         float total = 0;
         int count = 0, good = 0, ok = 0, bad = 0;
-        int days = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        // Biến đếm vấn đề cụ thể
+        int lateCount = 0;
+        int shortCount = 0;
+        int overCount = 0;
 
         int maxStreak = 0;
         int currentStreak = 0;
+        int days = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
         for (int d = 1; d <= days; d++) {
             Calendar dayCal = (Calendar) calendar.clone();
             dayCal.set(Calendar.DAY_OF_MONTH, d);
             String key = SleepAnalyzer.getDateKey(dayCal.getTimeInMillis());
-
             float h = prefs.getFloat(key, 0f);
+
+            // Lấy giờ đi ngủ (Nếu không có dữ liệu lịch sử thì lấy mặc định hiện tại)
+            String bedTime = prefs.getString("bedtime", "23:00");
 
             if (h > 0) {
                 total += h;
                 count++;
-                if (h >= SleepAnalyzer.THRESHOLD_OK) good++;
-                else if (h >= SleepAnalyzer.THRESHOLD_BAD) ok++;
+
+                // 1. Phân loại Good/OK/Bad
+                SleepAnalyzer.SleepState state = SleepAnalyzer.evaluateSleepState(h, false, bedTime);
+                if (state == SleepAnalyzer.SleepState.GOOD) good++;
+                else if (state == SleepAnalyzer.SleepState.OK) ok++;
                 else bad++;
 
+                // 2. Phân tích nguyên nhân sâu xa
+                SleepAnalyzer.SleepIssue issue = SleepAnalyzer.analyzeSleepIssue(h, bedTime);
+                if (issue == SleepAnalyzer.SleepIssue.LATE_SLEEP || issue == SleepAnalyzer.SleepIssue.SHORT_AND_LATE) lateCount++;
+                if (issue == SleepAnalyzer.SleepIssue.SHORT_SLEEP || issue == SleepAnalyzer.SleepIssue.SHORT_AND_LATE) shortCount++;
+                if (issue == SleepAnalyzer.SleepIssue.OVER_SLEEP) overCount++;
+
+                // 3. Tính Streak
                 currentStreak++;
-                if (currentStreak > maxStreak) {
-                    maxStreak = currentStreak;
-                }
+                if (currentStreak > maxStreak) maxStreak = currentStreak;
             } else {
                 currentStreak = 0;
             }
         }
 
+        // Hiển thị số liệu
         tvTotalHours.setText(String.format(Locale.getDefault(), "%.1f", total));
-
-        float avg = 0;
-        if (count > 0) {
-            avg = total / count;
-            tvAvgSleep.setText(String.format(Locale.getDefault(), "%dh %dp", (int)avg, (int)((avg-(int)avg)*60)));
-        } else {
-            tvAvgSleep.setText("0h 0p");
-        }
+        float avg = (count > 0) ? total / count : 0;
+        tvAvgSleep.setText(String.format(Locale.getDefault(), "%dh %dp", (int)avg, (int)((avg-(int)avg)*60)));
 
         tvGoodCount.setText(String.valueOf(good));
         tvOkCount.setText(String.valueOf(ok));
         tvBadCount.setText(String.valueOf(bad));
         tvBestStreak.setText(String.valueOf(maxStreak));
 
-        // Logic Mèo Nhận Xét
+        // --- MÈO NHẬN XÉT (Logic thông minh) ---
         String comment;
-        if (count < 5) comment = "Chưa đủ dữ liệu để đánh giá giấc ngủ tháng này.\n\nHãy ghi nhận thêm vài ngày để có kết quả chính xác hơn.";
-        else if (avg < 6.5f) comment = "Thời lượng ngủ trung bình thấp hơn mức khuyến nghị.\n\nNgủ thiếu kéo dài có thể gây mệt mỏi.";
-        else if (avg > 9.5f) comment = "Thời lượng ngủ trung bình cao hơn mức khuyến nghị.\n\nNgủ quá nhiều cũng có thể gây uể oải.";
-        else if (bad > good) comment = "Giấc ngủ trong tháng này chưa ổn định.\n\nViệc ngủ trễ xảy ra khá thường xuyên.";
-        else if (avg >= 7.0f && avg <= 9.0f) comment = "Giấc ngủ tháng này phù hợp với khuyến nghị sức khỏe.\n\nBạn đang duy trì thói quen tốt.";
-        else comment = "Thời lượng ngủ đạt yêu cầu, nhưng chưa thực sự ổn định.";
+
+        if (count == 0) {
+            comment = "Chưa có dữ liệu giấc ngủ trong tháng này.\n\nHãy bắt đầu ghi lại giấc ngủ để Mèo Mun theo dõi nhé!";
+        } else if (count < 5) {
+            comment = "Dữ liệu chưa đủ để đánh giá xu hướng tháng này.\n\nHãy duy trì ghi nhận thêm vài ngày nữa để có lời khuyên chính xác.";
+        } else {
+            // Ưu tiên khen ngợi nếu tốt
+            if (good >= count * 0.7) {
+                comment = "Thật tuyệt vời! Bạn đang duy trì phong độ giấc ngủ rất ổn định.\n\nCơ thể bạn đang được phục hồi năng lượng tối ưu.";
+            }
+            // Nếu không tốt, tìm vấn đề lớn nhất
+            else if (shortCount >= count * 0.4) { // > 40% ngày bị thiếu ngủ
+                comment = "Cảnh báo: Bạn thường xuyên ngủ thiếu giờ trong tháng này.\n\nCố gắng sắp xếp ngủ sớm hơn hoặc ngủ thêm vào cuối tuần để bù đắp.";
+            } else if (lateCount >= count * 0.4) { // > 40% ngày ngủ muộn
+                comment = "Bạn có xu hướng \"cú đêm\" khá thường xuyên.\n\nNgủ muộn kéo dài sẽ ảnh hưởng đến nhịp sinh học, hãy thử đi ngủ trước 00:00.";
+            } else if (overCount >= count * 0.3) { // > 30% ngày ngủ nhiều
+                comment = "Bạn có khá nhiều ngày ngủ \"nướng\".\n\nNgủ quá nhiều đôi khi cũng gây mệt mỏi như thiếu ngủ vậy, hãy giữ nhịp độ điều độ hơn.";
+            } else if (bad > good) {
+                comment = "Chất lượng giấc ngủ tháng này chưa ổn định.\n\nĐừng lo lắng, hãy bắt đầu bằng việc thiết lập giờ đi ngủ cố định mỗi ngày.";
+            } else {
+                comment = "Giấc ngủ của bạn ở mức trung bình khá.\n\nMột chút điều chỉnh nhỏ về không gian ngủ và giờ giấc sẽ giúp bạn đạt trạng thái tốt nhất.";
+            }
+        }
 
         tvCatComment.setText(comment);
     }
@@ -227,6 +259,7 @@ public class CalendarFragment extends Fragment {
         TextView tvTip = cell.findViewById(R.id.tv_tooltip_text);
 
         if (hours > 0) {
+            // Dùng hàm getQualityColor để lấy màu chuẩn
             icon.setColorFilter(SleepAnalyzer.getQualityColor(hours));
             icon.setAlpha(1.0f);
         } else {
