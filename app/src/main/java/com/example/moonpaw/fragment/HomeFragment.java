@@ -72,6 +72,10 @@ public class HomeFragment extends Fragment {
                 bottomNav.getMenu().findItem(R.id.nav_home).setChecked(true);
             }
         }
+
+        // Cập nhật lại chuỗi khi quay lại (đề phòng vừa sửa bên Lịch)
+        updateStreakLogic(System.currentTimeMillis());
+
         refreshUI();
     }
 
@@ -132,8 +136,7 @@ public class HomeFragment extends Fragment {
                 float hours = SleepAnalyzer.calculateHours(start, end);
                 String dateKey = SleepAnalyzer.getDateKey(start);
 
-                updateStreakLogic(end);
-
+                // Lưu dữ liệu vào SharedPreferences
                 prefs.edit()
                         .putFloat(dateKey, hours)
                         .putString("wakeup", SleepAnalyzer.formatTime(end))
@@ -142,6 +145,11 @@ public class HomeFragment extends Fragment {
                         .putBoolean("cycle_completed", true)
                         .remove("sleep_start")
                         .apply();
+
+                // --- QUAN TRỌNG: Gọi hàm tính chuỗi SAU KHI LƯU ---
+                // Để hàm này đọc được dữ liệu vừa lưu và đánh giá Good/Bad
+                updateStreakLogic(end);
+                // --------------------------------------------------
 
                 // Hiệu ứng thức dậy
                 animateTransition(() -> updateCatState(false, hours));
@@ -308,26 +316,57 @@ public class HomeFragment extends Fragment {
                 .withEndAction(() -> view.animate().scaleX(1.0f).scaleY(1.0f).setDuration(150).start()).start();
     }
 
-    // --- LOGIC HỆ THỐNG (STREAK, RESET, REFRESH) ---
-
+    // --- LOGIC HỆ THỐNG: TÍNH CHUỖI KHẮT KHE (CHỈ XANH/VÀNG MỚI ĐƯỢC TÍNH) ---
     private void updateStreakLogic(long currentTimeMs) {
-        int currentStreak = prefs.getInt("streak_count", 0);
-        long lastCompletion = prefs.getLong("last_completion_time", 0);
+        Calendar cal = Calendar.getInstance();
+        int streak = 0;
 
-        if (lastCompletion == 0) {
-            currentStreak = 1;
-        } else {
-            Calendar now = Calendar.getInstance(); now.setTimeInMillis(currentTimeMs);
-            Calendar last = Calendar.getInstance(); last.setTimeInMillis(lastCompletion);
+        // 1. Kiểm tra ngày hôm nay
+        String todayKey = SleepAnalyzer.getDateKey(cal.getTimeInMillis());
+        float todayHours = prefs.getFloat(todayKey, 0f);
 
-            now.set(Calendar.HOUR_OF_DAY, 0); now.set(Calendar.MINUTE, 0);
-            last.set(Calendar.HOUR_OF_DAY, 0); last.set(Calendar.MINUTE, 0);
+        if (todayHours > 0) {
+            // Lấy giờ đi ngủ để đánh giá
+            String tBed = prefs.getString("bedtime_" + todayKey, "23:00");
+            SleepAnalyzer.SleepState state = SleepAnalyzer.evaluateSleepState(todayHours, false, tBed);
 
-            long diffDays = (now.getTimeInMillis() - last.getTimeInMillis()) / (24 * 60 * 60 * 1000);
-            if (diffDays == 1) currentStreak++;
-            else if (diffDays > 1) currentStreak = 1;
+            if (state == SleepAnalyzer.SleepState.BAD) {
+                // QUY TẮC MỚI: Nếu hôm nay ngủ "Đỏ" (Bad) -> MẤT CHUỖI NGAY LẬP TỨC
+                prefs.edit().putInt("streak_count", 0).apply();
+                return; // Dừng luôn, không cần quét quá khứ
+            } else {
+                // Xanh hoặc Vàng -> Được tính 1 điểm
+                streak++;
+            }
         }
-        prefs.edit().putInt("streak_count", currentStreak).apply();
+
+        // 2. Quét ngược quá khứ
+        cal.add(Calendar.DAY_OF_YEAR, -1); // Lùi về hôm qua
+
+        while (true) {
+            String key = SleepAnalyzer.getDateKey(cal.getTimeInMillis());
+            float hours = prefs.getFloat(key, 0f);
+
+            if (hours > 0) {
+                String bedTime = prefs.getString("bedtime_" + key, "23:00");
+                SleepAnalyzer.SleepState state = SleepAnalyzer.evaluateSleepState(hours, false, bedTime);
+
+                if (state == SleepAnalyzer.SleepState.BAD) {
+                    // QUY TẮC MỚI: Gặp ngày "Đỏ" trong quá khứ -> Dừng đếm tại đó
+                    break;
+                } else {
+                    // Xanh hoặc Vàng -> Cộng tiếp
+                    streak++;
+                    cal.add(Calendar.DAY_OF_YEAR, -1);
+                }
+            } else {
+                // Không có dữ liệu -> Dừng đếm
+                break;
+            }
+        }
+
+        // Lưu kết quả chuỗi
+        prefs.edit().putInt("streak_count", streak).apply();
     }
 
     private void checkAndPerformReset() {
@@ -352,6 +391,7 @@ public class HomeFragment extends Fragment {
 
     private void refreshUI() {
         tvDate.setText(new SimpleDateFormat("EEEE, dd/MM", Locale.getDefault()).format(Calendar.getInstance().getTime()));
+        // Hiển thị chuỗi từ prefs
         tvStreak.setText(String.valueOf(prefs.getInt("streak_count", 0)));
 
         String bedTimeStr = prefs.getString("bedtime", "23:00");
